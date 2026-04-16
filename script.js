@@ -1,9 +1,7 @@
-const API_URL = "https://script.google.com/macros/s/AKfycby_2REwuKiCR0YJZ_RjF8eU1h76JriUNYrrasfEixK0DUZkwF2nkIkZ0xDG0UcCObh8/exec";
-const MAX_CUPOS = 15;
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const MAX = 15;
 
 const form = document.getElementById("formulario");
-const boton = document.getElementById("inscribirse");
-
 const contador = document.getElementById("contador");
 const mensaje = document.getElementById("mensaje");
 
@@ -14,7 +12,7 @@ const telefono = document.getElementById("telefono");
 const correo = document.getElementById("correo");
 const fechaNacimiento = document.getElementById("fechaNacimiento");
 
-// 🚀 JSONP REQUEST
+// 🔥 JSONP
 function jsonp(action, params = {}) {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -36,19 +34,28 @@ function jsonp(action, params = {}) {
   });
 }
 
-// 📥 OBTENER
-async function obtener() {
-  return await jsonp("get");
+// 📥 GET
+function obtener() {
+  return jsonp("get");
 }
 
-// ➕ ENVIAR
+// 📊 CONTADOR
+async function actualizar() {
+  const data = await obtener();
+
+  contador.innerText = `Inscritos: ${data.length} / ${MAX}`;
+
+  if (data.length >= MAX) {
+    form.style.display = "none";
+    mensaje.innerText = "Cupos llenos";
+  }
+}
+
+// 🚀 REGISTRO
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  boton.disabled = true;
-  boton.innerText = "Enviando...";
-
-  const data = await jsonp("add", {
+  const r = await jsonp("add", {
     nombres: nombres.value,
     apellidos: apellidos.value,
     cedula: cedula.value,
@@ -57,42 +64,23 @@ form.addEventListener("submit", async (e) => {
     fechaNacimiento: fechaNacimiento.value
   });
 
-  if (data.status === "ok") {
+  if (r.status === "ok") {
     Swal.fire("Éxito", "Inscripción realizada", "success");
     form.reset();
     actualizar();
   }
 
-  if (data.status === "duplicate") {
-    Swal.fire("Error", "Cédula ya registrada", "warning");
+  if (r.status === "duplicate") {
+    Swal.fire("Error", "Cédula duplicada", "error");
   }
 
-  if (data.status === "email_duplicate") {
-    Swal.fire("Error", "Correo ya registrado", "warning");
+  if (r.status === "email_duplicate") {
+    Swal.fire("Error", "Correo duplicado", "error");
   }
 
-  if (data.status === "full") {
-    Swal.fire("Cupos llenos", "No disponible", "error");
+  if (r.status === "full") {
+    Swal.fire("Error", "Cupos llenos", "error");
   }
-
-  boton.disabled = false;
-  boton.innerText = "Inscribirse";
 });
-
-// 📊 CONTADOR
-async function actualizar() {
-  try {
-    const data = await obtener();
-
-    contador.innerText = `Inscritos: ${data.length} / ${MAX_CUPOS}`;
-
-    if (data.length >= MAX_CUPOS) {
-      form.style.display = "none";
-      mensaje.innerText = "Cupos llenos";
-    }
-  } catch (e) {
-    console.log("Error contador", e);
-  }
-}
 
 actualizar();

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Administrador</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="styles.css">
@@ -12,9 +13,8 @@
 
 <div class="container">
 
-  <!-- LOGIN -->
   <div id="loginBox">
-    <h2>Acceso Administrador</h2>
+    <h2>Login Admin</h2>
 
     <input type="text" id="user" placeholder="Usuario">
     <input type="password" id="pass" placeholder="Contraseña">
@@ -22,16 +22,15 @@
     <button onclick="login()">Entrar</button>
   </div>
 
-  <!-- PANEL -->
   <div id="panel" style="display:none;">
 
-    <h2>Panel de Administración</h2>
+    <h2>Panel de Inscritos</h2>
 
-    <button onclick="logout()" class="btn-logout">Cerrar sesión</button>
+    <button onclick="logout()" class="btn-logout">Salir</button>
 
     <input type="text" id="buscar" placeholder="Buscar..." onkeyup="filtrar()">
 
-    <button onclick="descargarCSV()">Exportar CSV</button>
+    <button onclick="exportar()">Exportar CSV</button>
 
     <p id="total"></p>
 

@@ -1,34 +1,32 @@
-const API_URL = "https://script.google.com/macros/s/AKfycby_2REwuKiCR0YJZ_RjF8eU1h76JriUNYrrasfEixK0DUZkwF2nkIkZ0xDG0UcCObh8/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
 
 let datos = [];
 
 // 🔐 LOGIN
 function login() {
-  const user = document.getElementById("user").value;
-  const pass = document.getElementById("pass").value;
+  const u = document.getElementById("user").value;
+  const p = document.getElementById("pass").value;
 
-  if (user === "admin" && pass === "12345") {
+  if (u === "admin" && p === "12345") {
     sessionStorage.setItem("admin", "ok");
-    mostrarPanel();
+    mostrar();
   } else {
     Swal.fire("Error", "Credenciales incorrectas", "error");
   }
 }
 
-// 🔓 PANEL
-function mostrarPanel() {
+function mostrar() {
   document.getElementById("loginBox").style.display = "none";
   document.getElementById("panel").style.display = "block";
   cargar();
 }
 
-// 🚪 LOGOUT
 function logout() {
   sessionStorage.removeItem("admin");
   location.href = "index.html";
 }
 
-// 📡 JSONP
+// 🔥 JSONP
 function jsonp(action) {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -53,16 +51,16 @@ async function cargar() {
   render(datos);
 
   document.getElementById("total").innerText =
-    "Total inscritos: " + datos.length;
+    "Total: " + datos.length;
 }
 
-// 🎨 RENDER
+// 🎨 TABLA
 function render(data) {
-  const tabla = document.getElementById("tabla");
-  tabla.innerHTML = "";
+  const t = document.getElementById("tabla");
+  t.innerHTML = "";
 
   data.forEach(d => {
-    tabla.innerHTML += `
+    t.innerHTML += `
       <tr>
         <td>${d.Nombres}</td>
         <td>${d.Apellidos}</td>
@@ -76,18 +74,18 @@ function render(data) {
 
 // 🔍 FILTRO
 function filtrar() {
-  const t = document.getElementById("buscar").value.toLowerCase();
+  const v = document.getElementById("buscar").value.toLowerCase();
 
   render(datos.filter(d =>
-    d.Nombres.toLowerCase().includes(t) ||
-    d.Apellidos.toLowerCase().includes(t) ||
-    d.Cédula.toLowerCase().includes(t) ||
-    d.Correo.toLowerCase().includes(t)
+    d.Nombres.toLowerCase().includes(v) ||
+    d.Apellidos.toLowerCase().includes(v) ||
+    d.Cédula.toLowerCase().includes(v) ||
+    d.Correo.toLowerCase().includes(v)
   ));
 }
 
-// 📄 CSV EXPORT
-function descargarCSV() {
+// 📄 EXPORT CSV
+function exportar() {
   let csv = "Nombres,Apellidos,Cedula,Telefono,Correo\n";
 
   datos.forEach(d => {
@@ -103,9 +101,9 @@ function descargarCSV() {
   a.click();
 }
 
-// 🔁 AUTO LOGIN
+// auto login
 window.addEventListener("DOMContentLoaded", () => {
   if (sessionStorage.getItem("admin") === "ok") {
-    mostrarPanel();
+    mostrar();
   }
 });
