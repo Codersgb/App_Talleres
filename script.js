@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz9tpUb16tosD93jJzacR9MnkDsepoK2hE_gK1PCQ0LthMgBrtpcOjwun89wL0jeV4IxA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby_2REwuKiCR0YJZ_RjF8eU1h76JriUNYrrasfEixK0DUZkwF2nkIkZ0xDG0UcCObh8/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
@@ -14,52 +14,65 @@ const telefono = document.getElementById("telefono");
 const correo = document.getElementById("correo");
 const fechaNacimiento = document.getElementById("fechaNacimiento");
 
-// 🚀 ENVIAR (GET - SIN CORS)
+// 🚀 JSONP REQUEST
+function jsonp(action, params = {}) {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+
+    const query = new URLSearchParams({
+      action,
+      callback: "handleResponse",
+      ...params
+    });
+
+    script.src = API_URL + "?" + query.toString();
+
+    document.body.appendChild(script);
+
+    window.handleResponse = (data) => {
+      resolve(data);
+      script.remove();
+    };
+  });
+}
+
+// 📥 OBTENER
+async function obtener() {
+  return await jsonp("get");
+}
+
+// ➕ ENVIAR
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   boton.disabled = true;
   boton.innerText = "Enviando...";
 
-  try {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correo.value)) {
-      throw new Error("EMAIL_INVALIDO");
-    }
+  const data = await jsonp("add", {
+    nombres: nombres.value,
+    apellidos: apellidos.value,
+    cedula: cedula.value,
+    telefono: telefono.value,
+    correo: correo.value,
+    fechaNacimiento: fechaNacimiento.value
+  });
 
-    const url =
-      API_URL +
-      "?action=add" +
-      "&nombres=" + encodeURIComponent(nombres.value) +
-      "&apellidos=" + encodeURIComponent(apellidos.value) +
-      "&cedula=" + encodeURIComponent(cedula.value) +
-      "&telefono=" + encodeURIComponent(telefono.value) +
-      "&correo=" + encodeURIComponent(correo.value) +
-      "&fechaNacimiento=" + encodeURIComponent(fechaNacimiento.value);
+  if (data.status === "ok") {
+    Swal.fire("Éxito", "Inscripción realizada", "success");
+    form.reset();
+    actualizar();
+  }
 
-    const res = await fetch(url);
-    const r = await res.json();
+  if (data.status === "duplicate") {
+    Swal.fire("Error", "Cédula ya registrada", "warning");
+  }
 
-    if (r.status === "ok") {
-      Swal.fire("Éxito", "Inscripción realizada", "success");
-      form.reset();
-      actualizar();
-    } 
-    else if (r.status === "duplicate") {
-      Swal.fire("Duplicado", "Cédula ya registrada", "warning");
-    } 
-    else if (r.status === "email_duplicate") {
-      Swal.fire("Duplicado", "Correo ya registrado", "warning");
-    } 
-    else if (r.status === "full") {
-      Swal.fire("Cupos llenos", "No hay disponibilidad", "error");
-    } 
-    else {
-      throw new Error("ERROR_SERVER");
-    }
+  if (data.status === "email_duplicate") {
+    Swal.fire("Error", "Correo ya registrado", "warning");
+  }
 
-  } catch (err) {
-    Swal.fire("Error", err.message, "error");
+  if (data.status === "full") {
+    Swal.fire("Cupos llenos", "No disponible", "error");
   }
 
   boton.disabled = false;
@@ -69,8 +82,7 @@ form.addEventListener("submit", async (e) => {
 // 📊 CONTADOR
 async function actualizar() {
   try {
-    const res = await fetch(API_URL + "?action=get");
-    const data = await res.json();
+    const data = await obtener();
 
     contador.innerText = `Inscritos: ${data.length} / ${MAX_CUPOS}`;
 
@@ -78,7 +90,6 @@ async function actualizar() {
       form.style.display = "none";
       mensaje.innerText = "Cupos llenos";
     }
-
   } catch (e) {
     console.log("Error contador", e);
   }

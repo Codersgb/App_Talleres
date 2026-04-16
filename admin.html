@@ -3,18 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Administrador</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="styles.css">
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- 🔐 LOGIN -->
+  <!-- LOGIN -->
   <div id="loginBox">
     <h2>Acceso Administrador</h2>
 
@@ -24,16 +22,16 @@
     <button onclick="login()">Entrar</button>
   </div>
 
-  <!-- 📊 PANEL -->
+  <!-- PANEL -->
   <div id="panel" style="display:none;">
 
-    <h2>Panel de Inscritos</h2>
+    <h2>Panel de Administración</h2>
 
     <button onclick="logout()" class="btn-logout">Cerrar sesión</button>
 
     <input type="text" id="buscar" placeholder="Buscar..." onkeyup="filtrar()">
 
-    <button onclick="descargarPDF()">Exportar TXT / PDF</button>
+    <button onclick="descargarCSV()">Exportar CSV</button>
 
     <p id="total"></p>
 
@@ -45,7 +43,6 @@
           <th>Cédula</th>
           <th>Teléfono</th>
           <th>Correo</th>
-          <th>Acción</th>
         </tr>
       </thead>
 
