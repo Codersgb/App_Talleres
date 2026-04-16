@@ -1,25 +1,22 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyts2agN8dmA3NtgF2gabh97ZLp_l4oCDqifG4XNPRIMOsbLiVkaM6a3V-UnTtmdlZpDw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz2hNi8y7zWYtfxhS5hes-gWSYtFri9PGQgvTVtIAfJ8K4bNpGO3CyAneM7JPCytY4WEg/exec";
 let datos = [];
 
 window.addEventListener("DOMContentLoaded", () => {
-  if (sessionStorage.getItem("adminAuth") === "true") {
-    showPanel();
+  if (sessionStorage.getItem("admin") === "ok") {
+    show();
   }
 });
 
 function login() {
-  const user = document.getElementById("user").value;
-  const pass = document.getElementById("pass").value;
-
-  if (user === "admin" && pass === "12345") {
-    sessionStorage.setItem("adminAuth", "true");
-    showPanel();
+  if (user.value === "admin" && pass.value === "12345") {
+    sessionStorage.setItem("admin", "ok");
+    show();
   } else {
     Swal.fire("Error", "Credenciales incorrectas", "error");
   }
 }
 
-function showPanel() {
+function show() {
   loginBox.style.display = "none";
   panel.style.display = "block";
   cargar();
@@ -34,7 +31,8 @@ async function cargar() {
   const res = await fetch(API_URL + "?action=get");
   datos = await res.json();
   render(datos);
-  total.innerText = `Total: ${datos.length}`;
+
+  total.innerText = "Total: " + datos.length;
 }
 
 function render(data) {
@@ -48,7 +46,7 @@ function render(data) {
         <td>${d.Cédula}</td>
         <td>${d.Teléfono}</td>
         <td>${d.Correo}</td>
-        <td><button class="btn-eliminar" onclick="eliminar('${d.ID}')">Eliminar</button></td>
+        <td><button onclick="eliminar('${d.ID}')">Eliminar</button></td>
       </tr>
     `;
   });
@@ -87,12 +85,12 @@ function descargarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.text("Listado de Inscritos", 10, 10);
+  doc.text("Inscritos", 10, 10);
 
   let y = 20;
 
   datos.forEach(d => {
-    doc.text(`${d.Nombres} ${d.Apellidos} | ${d.Correo}`, 10, y);
+    doc.text(`${d.Nombres} ${d.Apellidos} - ${d.Correo}`, 10, y);
     y += 10;
   });
 

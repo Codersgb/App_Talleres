@@ -1,10 +1,32 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyts2agN8dmA3NtgF2gabh97ZLp_l4oCDqifG4XNPRIMOsbLiVkaM6a3V-UnTtmdlZpDw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz2hNi8y7zWYtfxhS5hes-gWSYtFri9PGQgvTVtIAfJ8K4bNpGO3CyAneM7JPCytY4WEg/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
-const contador = document.getElementById("contador");
-const mensaje = document.getElementById("mensaje");
 const boton = document.getElementById("inscribirse");
+
+function delay(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function fetchSeguro(url, options, reintentos = 2) {
+  try {
+    const res = await fetch(url, options);
+
+    if (!res.ok) throw new Error("HTTP_" + res.status);
+
+    return await res.json();
+
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
+
+    if (reintentos > 0) {
+      await delay(1000);
+      return fetchSeguro(url, options, reintentos - 1);
+    }
+
+    throw err;
+  }
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -21,53 +43,57 @@ form.addEventListener("submit", async (e) => {
     fechaNacimiento: fechaNacimiento.value
   };
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailRegex.test(data.correo)) {
-    Swal.fire("Error", "Correo inválido", "error");
-    boton.disabled = false;
-    boton.innerText = "Inscribirse";
-    return;
-  }
-
   try {
-    const res = await fetch(API_URL + "?action=add", {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(data.correo)) {
+      throw new Error("EMAIL_INVALIDO");
+    }
+
+    const r = await fetchSeguro(API_URL + "?action=add", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
-    const r = await res.json();
+    if (!r || !r.status) throw new Error("RESPUESTA_INVALIDA");
 
-    if (r.status === "duplicate") {
-      Swal.fire("Atención", "Cédula ya registrada", "warning");
-    } else if (r.status === "email_duplicate") {
-      Swal.fire("Atención", "Correo ya registrado", "warning");
-    } else if (r.status === "full") {
-      Swal.fire("Cupos llenos", "No hay disponibilidad", "error");
-    } else {
-      Swal.fire("Éxito", "Inscripción realizada", "success");
-      form.reset();
-      actualizar();
+    switch (r.status) {
+      case "ok":
+        Swal.fire("Éxito", "Inscripción realizada", "success");
+        form.reset();
+        break;
+
+      case "duplicate":
+        Swal.fire("Duplicado", "Cédula ya registrada", "warning");
+        break;
+
+      case "email_duplicate":
+        Swal.fire("Duplicado", "Correo ya registrado", "warning");
+        break;
+
+      case "full":
+        Swal.fire("Cupos llenos", "Sin disponibilidad", "error");
+        break;
+
+      default:
+        throw new Error("STATUS_DESCONOCIDO");
     }
 
   } catch (err) {
-    Swal.fire("Error", "No se pudo registrar", "error");
-  }
+    console.error(err);
 
-  boton.disabled = false;
-  boton.innerText = "Inscribirse";
+    let msg = "Error desconocido";
+
+    if (err.message === "EMAIL_INVALIDO") msg = "Correo inválido";
+    if (err.message === "HTTP_500") msg = "Error del servidor";
+    if (err.message === "RESPUESTA_INVALIDA") msg = "Respuesta inválida del servidor";
+    if (err.message === "STATUS_DESCONOCIDO") msg = "Error inesperado";
+
+    Swal.fire("Error", msg, "error");
+
+  } finally {
+    boton.disabled = false;
+    boton.innerText = "Inscribirse";
+  }
 });
-
-async function actualizar() {
-  const res = await fetch(API_URL + "?action=get");
-  const data = await res.json();
-
-  contador.innerText = `Inscritos: ${data.length} / ${MAX_CUPOS}`;
-
-  if (data.length >= MAX_CUPOS) {
-    form.style.display = "none";
-    mensaje.innerText = "Cupos llenos";
-  }
-}
-
-actualizar();
