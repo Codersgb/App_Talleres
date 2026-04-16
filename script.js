@@ -1,16 +1,22 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwg47pE-eyOGU5PQIO6adfunrKTqg8K6lGcfTC6KL_dAMNMzrUbVGYfBgqDSYHekEd1ng/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
 const boton = document.getElementById("inscribirse");
+const contador = document.getElementById("contador");
+const mensaje = document.getElementById("mensaje");
 
 function delay(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-async function fetchSeguro(url, options, reintentos = 2) {
+// 🔁 FETCH SIN CORS (NO JSON)
+async function fetchSeguro(url, body, reintentos = 2) {
   try {
-    const res = await fetch(url, options);
+    const res = await fetch(url, {
+      method: "POST",
+      body: body
+    });
 
     if (!res.ok) throw new Error("HTTP_" + res.status);
 
@@ -21,13 +27,14 @@ async function fetchSeguro(url, options, reintentos = 2) {
 
     if (reintentos > 0) {
       await delay(1000);
-      return fetchSeguro(url, options, reintentos - 1);
+      return fetchSeguro(url, body, reintentos - 1);
     }
 
     throw err;
   }
 }
 
+// 🚀 ENVÍO FORMULARIO
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -50,11 +57,18 @@ form.addEventListener("submit", async (e) => {
       throw new Error("EMAIL_INVALIDO");
     }
 
-    const r = await fetchSeguro(API_URL + "?action=add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+    // 🔥 FORMATO COMPATIBLE CON APPS SCRIPT
+    const formData = new URLSearchParams();
+
+    formData.append("action", "add");
+    formData.append("nombres", data.nombres);
+    formData.append("apellidos", data.apellidos);
+    formData.append("cedula", data.cedula);
+    formData.append("telefono", data.telefono);
+    formData.append("correo", data.correo);
+    formData.append("fechaNacimiento", data.fechaNacimiento);
+
+    const r = await fetchSeguro(API_URL, formData);
 
     if (!r || !r.status) throw new Error("RESPUESTA_INVALIDA");
 
@@ -62,6 +76,7 @@ form.addEventListener("submit", async (e) => {
       case "ok":
         Swal.fire("Éxito", "Inscripción realizada", "success");
         form.reset();
+        actualizar();
         break;
 
       case "duplicate":
@@ -73,7 +88,7 @@ form.addEventListener("submit", async (e) => {
         break;
 
       case "full":
-        Swal.fire("Cupos llenos", "Sin disponibilidad", "error");
+        Swal.fire("Cupos llenos", "No hay disponibilidad", "error");
         break;
 
       default:
@@ -86,9 +101,8 @@ form.addEventListener("submit", async (e) => {
     let msg = "Error desconocido";
 
     if (err.message === "EMAIL_INVALIDO") msg = "Correo inválido";
-    if (err.message === "HTTP_500") msg = "Error del servidor";
-    if (err.message === "RESPUESTA_INVALIDA") msg = "Respuesta inválida del servidor";
-    if (err.message === "STATUS_DESCONOCIDO") msg = "Error inesperado";
+    if (err.message === "HTTP_404") msg = "URL incorrecta del servidor";
+    if (err.message === "RESPUESTA_INVALIDA") msg = "Servidor no responde correctamente";
 
     Swal.fire("Error", msg, "error");
 
@@ -97,3 +111,23 @@ form.addEventListener("submit", async (e) => {
     boton.innerText = "Inscribirse";
   }
 });
+
+// 📊 CONTADOR
+async function actualizar() {
+  try {
+    const res = await fetch(API_URL + "?action=get");
+    const data = await res.json();
+
+    contador.innerText = `Inscritos: ${data.length} / ${MAX_CUPOS}`;
+
+    if (data.length >= MAX_CUPOS) {
+      form.style.display = "none";
+      mensaje.innerText = "Cupos llenos";
+    }
+
+  } catch (err) {
+    console.error("Error contador:", err);
+  }
+}
+
+actualizar();

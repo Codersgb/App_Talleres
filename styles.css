@@ -5,7 +5,6 @@ body {
   margin: 0;
 }
 
-/* CONTENEDOR PRINCIPAL */
 .container {
   max-width: 520px;
   margin: auto;
@@ -13,67 +12,40 @@ body {
   text-align: center;
 }
 
-/* TOP BAR */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   border: 1px solid #334155;
+  padding: 10px;
   border-radius: 10px;
-  padding: 8px 10px;
   margin-bottom: 15px;
-  background: rgba(255,255,255,0.05);
 }
 
 .btn-admin {
-  padding: 8px 12px;
   background: #3b82f6;
+  padding: 6px 10px;
+  border-radius: 8px;
   color: white;
   text-decoration: none;
-  border-radius: 8px;
-  transition: 0.3s;
 }
 
-.btn-admin:hover {
-  background: #2563eb;
-}
-
-/* TITULOS */
-h2 {
-  margin: 10px 0;
-  font-weight: 600;
-}
-
-/* CONTADOR */
 .contador {
-  font-size: 18px;
-  margin: 10px 0;
   color: #38bdf8;
-}
-
-/* MENSAJES */
-.mensaje {
   margin: 10px 0;
-  color: #f87171;
-  font-size: 14px;
 }
 
-/* INPUTS */
+.mensaje {
+  color: #f87171;
+}
+
 input {
   width: 95%;
   padding: 10px;
   margin: 6px 0;
   border-radius: 8px;
   border: none;
-  outline: none;
-  transition: 0.2s;
 }
 
-input:focus {
-  box-shadow: 0 0 5px #3b82f6;
-}
-
-/* BOTONES GENERALES */
 button {
   width: 100%;
   padding: 12px;
@@ -83,88 +55,28 @@ button {
   border-radius: 8px;
   color: white;
   cursor: pointer;
-  font-size: 16px;
-  transition: 0.3s;
 }
 
 button:hover {
   background: #16a34a;
 }
 
-/* BOTÓN LOGOUT */
 .btn-logout {
   background: #ef4444;
 }
 
-.btn-logout:hover {
-  background: #dc2626;
-}
-
-/* BOTÓN ELIMINAR */
 .btn-eliminar {
-  background: #facc15;
+  background: yellow;
   color: black;
-  font-weight: bold;
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-  transition: 0.3s;
 }
 
-.btn-eliminar:hover {
-  background: #ef4444;
-  color: white;
-}
-
-/* TABLA */
 table {
   width: 100%;
   margin-top: 15px;
   border-collapse: collapse;
-  font-size: 14px;
 }
 
 th, td {
-  padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-}
-
-tr:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-/* LOGO / IMAGEN */
-.img {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border: 1px solid #334155;
-  border-radius: 15px;
-  padding: 10px;
-  margin-top: 15px;
-  background: rgba(255,255,255,0.03);
-}
-
-#logo {
-  width: 30%;
-  border-radius: 10px;
-}
-
-/* BOTÓN DESHABILITADO */
-button:disabled {
-  background: gray;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .container {
-    width: 95%;
-  }
-
-  table {
-    font-size: 12px;
-  }
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
 }

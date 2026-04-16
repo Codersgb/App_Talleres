@@ -1,22 +1,23 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwg47pE-eyOGU5PQIO6adfunrKTqg8K6lGcfTC6KL_dAMNMzrUbVGYfBgqDSYHekEd1ng/exec";
+
 let datos = [];
 
 window.addEventListener("DOMContentLoaded", () => {
   if (sessionStorage.getItem("admin") === "ok") {
-    show();
+    mostrarPanel();
   }
 });
 
 function login() {
   if (user.value === "admin" && pass.value === "12345") {
     sessionStorage.setItem("admin", "ok");
-    show();
+    mostrarPanel();
   } else {
     Swal.fire("Error", "Credenciales incorrectas", "error");
   }
 }
 
-function show() {
+function mostrarPanel() {
   loginBox.style.display = "none";
   panel.style.display = "block";
   cargar();
@@ -30,8 +31,8 @@ function logout() {
 async function cargar() {
   const res = await fetch(API_URL + "?action=get");
   datos = await res.json();
-  render(datos);
 
+  render(datos);
   total.innerText = "Total: " + datos.length;
 }
 
@@ -46,7 +47,7 @@ function render(data) {
         <td>${d.Cedula}</td>
         <td>${d.Telefono}</td>
         <td>${d.Correo}</td>
-        <td><button onclick="eliminar('${d.ID}')">Eliminar</button></td>
+        <td><button class="btn-eliminar" onclick="eliminar('${d.ID}')">Eliminar</button></td>
       </tr>
     `;
   });
@@ -61,9 +62,9 @@ async function eliminar(id) {
 
   if (!r.isConfirmed) return;
 
-  await fetch(API_URL + "?action=delete", {
+  await fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ id })
+    body: new URLSearchParams({ action: "delete", id })
   });
 
   Swal.fire("Eliminado", "", "success");
@@ -76,7 +77,7 @@ function filtrar() {
   render(datos.filter(d =>
     d.Nombres.toLowerCase().includes(t) ||
     d.Apellidos.toLowerCase().includes(t) ||
-    d.Cédula.toLowerCase().includes(t) ||
+    d.Cedula.toLowerCase().includes(t) ||
     d.Correo.toLowerCase().includes(t)
   ));
 }
@@ -85,7 +86,7 @@ function descargarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.text("Inscritos", 10, 10);
+  doc.text("Listado de Inscritos", 10, 10);
 
   let y = 20;
 
