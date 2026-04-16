@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz2hNi8y7zWYtfxhS5hes-gWSYtFri9PGQgvTVtIAfJ8K4bNpGO3CyAneM7JPCytY4WEg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
 let datos = [];
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -43,8 +43,8 @@ function render(data) {
       <tr>
         <td>${d.Nombres}</td>
         <td>${d.Apellidos}</td>
-        <td>${d.Cédula}</td>
-        <td>${d.Teléfono}</td>
+        <td>${d.Cedula}</td>
+        <td>${d.Telefono}</td>
         <td>${d.Correo}</td>
         <td><button onclick="eliminar('${d.ID}')">Eliminar</button></td>
       </tr>

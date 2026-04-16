@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz2hNi8y7zWYtfxhS5hes-gWSYtFri9PGQgvTVtIAfJ8K4bNpGO3CyAneM7JPCytY4WEg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
