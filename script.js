@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxMb6EOyMrBmYP2sx0lgaIyrMPvMXUpg0aSkm8_9rn9BXG-HGEUTH7XIAg9zTQM28R94A/exec";
 const MAX = 15;
 
 const form = document.getElementById("formulario");
