@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscripción Taller</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <span>® Yonder Gil 2026</span>
+    <a href="admin.html" class="btn-admin">Login</a>
+  </div>
+
+  <h2>Sistema de Inscripción Talleres</h2>
+
+  <div id="contador" class="contador"></div>
+  <div id="mensaje" class="mensaje"></div>
+
+  <form id="formulario">
+    <input type="text" id="nombres" placeholder="Nombres" required>
+    <input type="text" id="apellidos" placeholder="Apellidos" required>
+    <input type="text" id="cedula" placeholder="Cédula" required>
+    <input type="text" id="telefono" placeholder="Teléfono" required>
+    <input type="email" id="correo" placeholder="Correo electrónico" required>
+
+    <label for="fechaNacimiento">Fecha de Nacimiento</label>
+    <input type="date" id="fechaNacimiento" required>
+
+    <button id="inscribirse" type="submit">Inscribirse</button>
+  </form>
+
+  <div class="img">
+      <img id="logo" src="https://i.ibb.co/Z6gtJdS7/Logo-SD.jpg" alt="">
+      <h1>Sala Digital <br> José de San Martín</h1>   
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Administrador</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <div id="loginBox">
+    <h2>Acceso Administrador</h2>
+    <input type="text" id="user" placeholder="Usuario">
+    <input type="password" id="pass" placeholder="Contraseña">
+    <button onclick="login()">Entrar</button>
+  </div>
+
+  <div id="panel" style="display:none;">
+
+    <h2>Panel de Administración</h2>
+
+    <button onclick="logout()" class="btn-logout">Cerrar sesión</button>
+
+    <input type="text" id="buscar" placeholder="Buscar..." onkeyup="filtrar()">
+
+    <button onclick="descargarPDF()">Descargar PDF</button>
+
+    <p id="total"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombres</th>
+          <th>Apellidos</th>
+          <th>Cédula</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla"></tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
