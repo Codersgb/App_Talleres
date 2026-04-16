@@ -1,39 +1,45 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz9tpUb16tosD93jJzacR9MnkDsepoK2hE_gK1PCQ0LthMgBrtpcOjwun89wL0jeV4IxA/exec";
 
 let datos = [];
 
-// LOGIN
+// 🔐 LOGIN SIMPLE
 function login() {
-  if (user.value === "admin" && pass.value === "12345") {
+  const user = document.getElementById("user").value;
+  const pass = document.getElementById("pass").value;
+
+  if (user === "admin" && pass === "12345") {
     sessionStorage.setItem("admin", "ok");
-    mostrar();
+    mostrarPanel();
   } else {
     Swal.fire("Error", "Credenciales incorrectas", "error");
   }
 }
 
-function mostrar() {
-  loginBox.style.display = "none";
-  panel.style.display = "block";
+// 🔓 MOSTRAR PANEL
+function mostrarPanel() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("panel").style.display = "block";
   cargar();
 }
 
+// 🚪 LOGOUT
 function logout() {
-  sessionStorage.clear();
+  sessionStorage.removeItem("admin");
   location.href = "index.html";
 }
 
-// CARGAR
+// 📥 CARGAR DATOS
 async function cargar() {
   const res = await fetch(API_URL + "?action=get");
   datos = await res.json();
 
   render(datos);
-  total.innerText = "Total: " + datos.length;
+  document.getElementById("total").innerText = "Total inscritos: " + datos.length;
 }
 
-// RENDER
+// 🎨 RENDER TABLA
 function render(data) {
+  const tabla = document.getElementById("tabla");
   tabla.innerHTML = "";
 
   data.forEach(d => {
@@ -41,59 +47,73 @@ function render(data) {
       <tr>
         <td>${d.Nombres}</td>
         <td>${d.Apellidos}</td>
-        <td>${d.Cédula}</td>
-        <td>${d.Teléfono}</td>
+        <td>${d.Cedula}</td>
+        <td>${d.Telefono}</td>
         <td>${d.Correo}</td>
-        <td><button class="btn-eliminar" onclick="eliminar('${d.ID}')">Eliminar</button></td>
+        <td>
+          <button class="btn-eliminar" onclick="eliminar('${d.ID}')">
+            Eliminar
+          </button>
+        </td>
       </tr>
     `;
   });
 }
 
-// ELIMINAR
+// ❌ ELIMINAR
 async function eliminar(id) {
-  await fetch(API_URL, {
-    method: "POST",
-    body: new URLSearchParams({
-      action: "delete",
-      id: id
-    })
+  const confirmacion = await Swal.fire({
+    title: "¿Eliminar registro?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí"
   });
+
+  if (!confirmacion.isConfirmed) return;
+
+  const url =
+    API_URL +
+    "?action=delete" +
+    "&id=" + encodeURIComponent(id);
+
+  await fetch(url);
 
   Swal.fire("Eliminado", "", "success");
   cargar();
 }
 
-// FILTRO
+// 🔍 FILTRAR
 function filtrar() {
-  const t = buscar.value.toLowerCase();
+  const t = document.getElementById("buscar").value.toLowerCase();
 
   render(datos.filter(d =>
     d.Nombres.toLowerCase().includes(t) ||
     d.Apellidos.toLowerCase().includes(t) ||
-    d.Cédula.toLowerCase().includes(t) ||
+    d.Cedula.toLowerCase().includes(t) ||
     d.Correo.toLowerCase().includes(t)
   ));
 }
 
-// PDF
+// 📄 PDF (BÁSICO SIN LIBRERÍAS COMPLEJAS)
 function descargarPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.text("Inscritos", 10, 10);
-
-  let y = 20;
+  let contenido = "LISTADO DE INSCRITOS\n\n";
 
   datos.forEach(d => {
-    doc.text(`${d.Nombres} ${d.Apellidos} - ${d.Correo}`, 10, y);
-    y += 10;
+    contenido += `${d.Nombres} ${d.Apellidos} - ${d.Cédula} - ${d.Correo}\n`;
   });
 
-  doc.save("inscritos.pdf");
+  const blob = new Blob([contenido], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "inscritos.txt";
+  a.click();
 }
 
-// AUTO LOGIN
-if (sessionStorage.getItem("admin") === "ok") {
-  mostrar();
-}
+// 🔁 AUTO LOGIN
+window.addEventListener("DOMContentLoaded", () => {
+  if (sessionStorage.getItem("admin") === "ok") {
+    mostrarPanel();
+  }
+});

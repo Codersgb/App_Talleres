@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz9tpUb16tosD93jJzacR9MnkDsepoK2hE_gK1PCQ0LthMgBrtpcOjwun89wL0jeV4IxA/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
@@ -14,23 +14,12 @@ const telefono = document.getElementById("telefono");
 const correo = document.getElementById("correo");
 const fechaNacimiento = document.getElementById("fechaNacimiento");
 
-// 🚀 FETCH SEGURO (SIN CORS PRE-FLIGHT)
-async function fetchSeguro(body) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: body,
-    redirect: "follow"
-  });
-
-  return await res.json();
-}
-
-// 🚀 REGISTRO
+// 🚀 ENVIAR (GET - SIN CORS)
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   boton.disabled = true;
-  boton.innerText = "Procesando...";
+  boton.innerText = "Enviando...";
 
   try {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,39 +27,35 @@ form.addEventListener("submit", async (e) => {
       throw new Error("EMAIL_INVALIDO");
     }
 
-    const formData = new URLSearchParams();
+    const url =
+      API_URL +
+      "?action=add" +
+      "&nombres=" + encodeURIComponent(nombres.value) +
+      "&apellidos=" + encodeURIComponent(apellidos.value) +
+      "&cedula=" + encodeURIComponent(cedula.value) +
+      "&telefono=" + encodeURIComponent(telefono.value) +
+      "&correo=" + encodeURIComponent(correo.value) +
+      "&fechaNacimiento=" + encodeURIComponent(fechaNacimiento.value);
 
-    formData.append("action", "add");
-    formData.append("nombres", nombres.value);
-    formData.append("apellidos", apellidos.value);
-    formData.append("cedula", cedula.value);
-    formData.append("telefono", telefono.value);
-    formData.append("correo", correo.value);
-    formData.append("fechaNacimiento", fechaNacimiento.value);
+    const res = await fetch(url);
+    const r = await res.json();
 
-    const r = await fetchSeguro(formData);
-
-    switch (r.status) {
-      case "ok":
-        Swal.fire("Éxito", "Inscripción realizada", "success");
-        form.reset();
-        actualizar();
-        break;
-
-      case "duplicate":
-        Swal.fire("Duplicado", "Cédula ya registrada", "warning");
-        break;
-
-      case "email_duplicate":
-        Swal.fire("Duplicado", "Correo ya registrado", "warning");
-        break;
-
-      case "full":
-        Swal.fire("Cupos llenos", "No hay disponibilidad", "error");
-        break;
-
-      default:
-        throw new Error("ERROR_SERVIDOR");
+    if (r.status === "ok") {
+      Swal.fire("Éxito", "Inscripción realizada", "success");
+      form.reset();
+      actualizar();
+    } 
+    else if (r.status === "duplicate") {
+      Swal.fire("Duplicado", "Cédula ya registrada", "warning");
+    } 
+    else if (r.status === "email_duplicate") {
+      Swal.fire("Duplicado", "Correo ya registrado", "warning");
+    } 
+    else if (r.status === "full") {
+      Swal.fire("Cupos llenos", "No hay disponibilidad", "error");
+    } 
+    else {
+      throw new Error("ERROR_SERVER");
     }
 
   } catch (err) {
