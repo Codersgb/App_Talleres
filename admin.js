@@ -1,23 +1,18 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwg47pE-eyOGU5PQIO6adfunrKTqg8K6lGcfTC6KL_dAMNMzrUbVGYfBgqDSYHekEd1ng/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
 
 let datos = [];
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (sessionStorage.getItem("admin") === "ok") {
-    mostrarPanel();
-  }
-});
-
+// LOGIN
 function login() {
   if (user.value === "admin" && pass.value === "12345") {
     sessionStorage.setItem("admin", "ok");
-    mostrarPanel();
+    mostrar();
   } else {
     Swal.fire("Error", "Credenciales incorrectas", "error");
   }
 }
 
-function mostrarPanel() {
+function mostrar() {
   loginBox.style.display = "none";
   panel.style.display = "block";
   cargar();
@@ -28,6 +23,7 @@ function logout() {
   location.href = "index.html";
 }
 
+// CARGAR
 async function cargar() {
   const res = await fetch(API_URL + "?action=get");
   datos = await res.json();
@@ -36,6 +32,7 @@ async function cargar() {
   total.innerText = "Total: " + datos.length;
 }
 
+// RENDER
 function render(data) {
   tabla.innerHTML = "";
 
@@ -44,8 +41,8 @@ function render(data) {
       <tr>
         <td>${d.Nombres}</td>
         <td>${d.Apellidos}</td>
-        <td>${d.Cedula}</td>
-        <td>${d.Telefono}</td>
+        <td>${d.Cédula}</td>
+        <td>${d.Teléfono}</td>
         <td>${d.Correo}</td>
         <td><button class="btn-eliminar" onclick="eliminar('${d.ID}')">Eliminar</button></td>
       </tr>
@@ -53,40 +50,38 @@ function render(data) {
   });
 }
 
+// ELIMINAR
 async function eliminar(id) {
-  const r = await Swal.fire({
-    title: "¿Eliminar?",
-    icon: "warning",
-    showCancelButton: true
-  });
-
-  if (!r.isConfirmed) return;
-
   await fetch(API_URL, {
     method: "POST",
-    body: new URLSearchParams({ action: "delete", id })
+    body: new URLSearchParams({
+      action: "delete",
+      id: id
+    })
   });
 
   Swal.fire("Eliminado", "", "success");
   cargar();
 }
 
+// FILTRO
 function filtrar() {
   const t = buscar.value.toLowerCase();
 
   render(datos.filter(d =>
     d.Nombres.toLowerCase().includes(t) ||
     d.Apellidos.toLowerCase().includes(t) ||
-    d.Cedula.toLowerCase().includes(t) ||
+    d.Cédula.toLowerCase().includes(t) ||
     d.Correo.toLowerCase().includes(t)
   ));
 }
 
+// PDF
 function descargarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.text("Listado de Inscritos", 10, 10);
+  doc.text("Inscritos", 10, 10);
 
   let y = 20;
 
@@ -96,4 +91,9 @@ function descargarPDF() {
   });
 
   doc.save("inscritos.pdf");
+}
+
+// AUTO LOGIN
+if (sessionStorage.getItem("admin") === "ok") {
+  mostrar();
 }

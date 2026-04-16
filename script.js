@@ -1,76 +1,54 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwg47pE-eyOGU5PQIO6adfunrKTqg8K6lGcfTC6KL_dAMNMzrUbVGYfBgqDSYHekEd1ng/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyNsJhTaYrOlsjuVFVKMDtRKNWPEpbr2GAArEwerV-cLDJAmtbdeSMWCJbImJNMmKglXQ/exec";
 const MAX_CUPOS = 15;
 
 const form = document.getElementById("formulario");
 const boton = document.getElementById("inscribirse");
+
 const contador = document.getElementById("contador");
 const mensaje = document.getElementById("mensaje");
 
-function delay(ms) {
-  return new Promise(r => setTimeout(r, ms));
+const nombres = document.getElementById("nombres");
+const apellidos = document.getElementById("apellidos");
+const cedula = document.getElementById("cedula");
+const telefono = document.getElementById("telefono");
+const correo = document.getElementById("correo");
+const fechaNacimiento = document.getElementById("fechaNacimiento");
+
+// 🚀 FETCH SEGURO (SIN CORS PRE-FLIGHT)
+async function fetchSeguro(body) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: body,
+    redirect: "follow"
+  });
+
+  return await res.json();
 }
 
-// 🔁 FETCH SIN CORS (NO JSON)
-async function fetchSeguro(url, body, reintentos = 2) {
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      body: body
-    });
-
-    if (!res.ok) throw new Error("HTTP_" + res.status);
-
-    return await res.json();
-
-  } catch (err) {
-    console.error("FETCH ERROR:", err);
-
-    if (reintentos > 0) {
-      await delay(1000);
-      return fetchSeguro(url, body, reintentos - 1);
-    }
-
-    throw err;
-  }
-}
-
-// 🚀 ENVÍO FORMULARIO
+// 🚀 REGISTRO
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   boton.disabled = true;
   boton.innerText = "Procesando...";
 
-  const data = {
-    nombres: nombres.value.trim(),
-    apellidos: apellidos.value.trim(),
-    cedula: cedula.value.trim(),
-    telefono: telefono.value.trim(),
-    correo: correo.value.trim(),
-    fechaNacimiento: fechaNacimiento.value
-  };
-
   try {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(data.correo)) {
+    if (!emailRegex.test(correo.value)) {
       throw new Error("EMAIL_INVALIDO");
     }
 
-    // 🔥 FORMATO COMPATIBLE CON APPS SCRIPT
     const formData = new URLSearchParams();
 
     formData.append("action", "add");
-    formData.append("nombres", data.nombres);
-    formData.append("apellidos", data.apellidos);
-    formData.append("cedula", data.cedula);
-    formData.append("telefono", data.telefono);
-    formData.append("correo", data.correo);
-    formData.append("fechaNacimiento", data.fechaNacimiento);
+    formData.append("nombres", nombres.value);
+    formData.append("apellidos", apellidos.value);
+    formData.append("cedula", cedula.value);
+    formData.append("telefono", telefono.value);
+    formData.append("correo", correo.value);
+    formData.append("fechaNacimiento", fechaNacimiento.value);
 
-    const r = await fetchSeguro(API_URL, formData);
-
-    if (!r || !r.status) throw new Error("RESPUESTA_INVALIDA");
+    const r = await fetchSeguro(formData);
 
     switch (r.status) {
       case "ok":
@@ -92,24 +70,15 @@ form.addEventListener("submit", async (e) => {
         break;
 
       default:
-        throw new Error("STATUS_DESCONOCIDO");
+        throw new Error("ERROR_SERVIDOR");
     }
 
   } catch (err) {
-    console.error(err);
-
-    let msg = "Error desconocido";
-
-    if (err.message === "EMAIL_INVALIDO") msg = "Correo inválido";
-    if (err.message === "HTTP_404") msg = "URL incorrecta del servidor";
-    if (err.message === "RESPUESTA_INVALIDA") msg = "Servidor no responde correctamente";
-
-    Swal.fire("Error", msg, "error");
-
-  } finally {
-    boton.disabled = false;
-    boton.innerText = "Inscribirse";
+    Swal.fire("Error", err.message, "error");
   }
+
+  boton.disabled = false;
+  boton.innerText = "Inscribirse";
 });
 
 // 📊 CONTADOR
@@ -125,8 +94,8 @@ async function actualizar() {
       mensaje.innerText = "Cupos llenos";
     }
 
-  } catch (err) {
-    console.error("Error contador:", err);
+  } catch (e) {
+    console.log("Error contador", e);
   }
 }
 
